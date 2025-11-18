@@ -19,6 +19,18 @@ export interface Post {
 // PostModal Props
 export interface PostModalProps {
     isOpen: boolean;
-    onClose: (): any;
+    onClose: ()=> void;
     onAddPost: (post: Omit<Post, 'id'>) => void;
+}
+
+export type ButtonSize = 'small' | 'medium' | 'large';
+export type ButtonShape = 'rounded-sm' | 'rounded-md' | 'rounded-lg' | 'rounded-full';
+
+export interface ButtonProps {
+    children: React.ReactNode;
+    size?: ButtonSize;
+    shape?: ButtonShape;
+    onClick?: () => void;
+    type?: 'button' | 'submit' | 'reset';
+    className?: string;
 }
