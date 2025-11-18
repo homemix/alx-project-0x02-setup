@@ -1,25 +1,19 @@
-
-import type { NextPage } from 'next';
+import type { NextPage, GetStaticProps } from 'next';
 import Head from 'next/head';
 import Header from '@/components/layout/Header';
 import PostCard from '@/components/common/PostCard';
 import { PostProps } from '@/interfaces';
 
-import useSWR from 'swr';
+interface PostsPageProps {
+    posts: PostProps[];
+}
 
-const fetcher = (url: string) => fetch(url).then((res) => res.json());
-
-const Posts: NextPage = () => {
-    const { data: posts, error, isLoading } = useSWR(
-        'https://jsonplaceholder.typicode.com/posts',
-        fetcher
-    );
-
+const Posts: NextPage<PostsPageProps> = ({ posts }) => {
     return (
         <>
             <Head>
                 <title>Posts | ALX Project 0x02</title>
-                <meta name="description" content="List of posts from JSONPlaceholder API" />
+                <meta name="description" content="List of posts fetched with getStaticProps" />
             </Head>
 
             <Header />
@@ -31,26 +25,17 @@ const Posts: NextPage = () => {
                             All Posts
                         </h1>
                         <p className="text-xl text-gray-600">
-                            Fetched live from JSONPlaceholder API
+                            Fetched at build time using getStaticProps
                         </p>
                     </div>
 
-                    {isLoading && (
+                    {posts.length === 0 ? (
                         <div className="text-center py-20">
-                            <div className="inline-block animate-spin rounded-full h-12 w-12 border-4 border-indigo-600 border-t-transparent"></div>
-                            <p className="mt-4 text-xl text-gray-600">Loading posts...</p>
+                            <p className="text-2xl text-gray-500">No posts available.</p>
                         </div>
-                    )}
-
-                    {error && (
-                        <div className="text-center py-20">
-                            <p className="text-2xl text-red-600">Failed to load posts. Please try again later.</p>
-                        </div>
-                    )}
-
-                    {posts && (
+                    ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-                            {posts.slice(0, 12).map((post: any) => (
+                            {posts.map((post) => (
                                 <PostCard
                                     key={post.id}
                                     title={post.title}
@@ -60,16 +45,40 @@ const Posts: NextPage = () => {
                             ))}
                         </div>
                     )}
-
-                    {posts && posts.length === 0 && (
-                        <div className="text-center py-20">
-                            <p className="text-2xl text-gray-500">No posts found.</p>
-                        </div>
-                    )}
                 </div>
             </main>
         </>
     );
+};
+
+
+export const getStaticProps: GetStaticProps<PostsPageProps> = async () => {
+    try {
+        const res = await fetch('https://jsonplaceholder.typicode.com/posts');
+        const data = await res.json();
+
+        // Take only first 12 posts (matches previous behavior)
+        const posts = data.slice(0, 12).map((post: any) => ({
+            id: post.id,
+            title: post.title,
+            body: post.body,
+            userId: post.userId,
+        }));
+
+        return {
+            props: {
+                posts,
+            },
+            revalidate: 60, // Optional: revalidate every 60 seconds (ISR)
+        };
+    } catch (error) {
+        console.error('Failed to fetch posts:', error);
+        return {
+            props: {
+                posts: [],
+            },
+        };
+    }
 };
 
 export default Posts;
