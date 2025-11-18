@@ -1,5 +1,6 @@
 import {Head} from "next/document";
 import React from "react";
+import Header from "@/components/layout/Header";
 
 const Home: React.FC = () => {
     return (
@@ -12,7 +13,7 @@ const Home: React.FC = () => {
                 />
             </Head>
 
-            {/*<Header/>*/}
+            <Header/>
 
             <main
                 className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center px-4">
