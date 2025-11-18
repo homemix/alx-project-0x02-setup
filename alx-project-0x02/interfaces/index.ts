@@ -34,3 +34,8 @@ export interface ButtonProps {
     type?: 'button' | 'submit' | 'reset';
     className?: string;
 }
+export interface PostProps {
+    title: string;
+    content: string;
+    userId: number;
+}
